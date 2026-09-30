@@ -1,0 +1,189 @@
+-- MY GENERATOR HUB (VP UI Edition - INSTANT REPAIR & AUTO QTE)
+-- Optimized for Delta Executor, Codex, Fluxus & Violence District
+-- 100% Anti-Lag & Event-Driven (Safe Execution)
+
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local isRunning = false
+
+-- Notifikasi Sukses saat dieksekusi
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "VP HUB LOADED",
+        Text = "Script berhasil dimuat! Klik tombol VP di layar.",
+        Duration = 5
+    })
+end)
+
+-- Hapus GUI lama jika execute ulang (Anti-Double UI)
+local oldGui = playerGui:FindFirstChild("VP_InstantHub")
+if oldGui then oldGui:Destroy() end
+
+-- ScreenGui Utama
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "VP_InstantHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = playerGui
+
+---------------------------------------------------------
+-- 1. TOMBOL LINGKARAN "VP" (TOGGLE MENU)
+---------------------------------------------------------
+local VPButton = Instance.new("TextButton")
+VPButton.Name = "VPButton"
+VPButton.Size = UDim2.fromOffset(50, 50)
+VPButton.Position = UDim2.fromScale(0.08, 0.25)
+VPButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+VPButton.Text = "VP"
+VPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+VPButton.TextSize = 22
+VPButton.Font = Enum.Font.SourceSansBold
+VPButton.Active = true
+VPButton.Draggable = true
+VPButton.Parent = ScreenGui
+
+local VPCorner = Instance.new("UICorner")
+VPCorner.CornerRadius = UDim.new(1, 0)
+VPCorner.Parent = VPButton
+
+local VPStroke = Instance.new("UIStroke")
+VPStroke.Color = Color3.fromRGB(255, 255, 255)
+VPStroke.Thickness = 2
+VPStroke.Parent = VPButton
+
+---------------------------------------------------------
+-- 2. MENU UTAMA (MAIN FRAME)
+---------------------------------------------------------
+local Frame = Instance.new("Frame")
+Frame.Name = "MainFrame"
+Frame.Size = UDim2.fromOffset(300, 150)
+Frame.Position = UDim2.fromScale(0.5, 0.5)
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Frame.Visible = false
+Frame.Parent = ScreenGui
+
+local FrameCorner = Instance.new("UICorner")
+FrameCorner.CornerRadius = UDim.new(0, 10)
+FrameCorner.Parent = Frame
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "VIOLENCE DISTRICT - INSTANT HUB"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.SourceSansBold
+Title.Parent = Frame
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Position = UDim2.fromOffset(20, 45)
+StatusLabel.Size = UDim2.fromOffset(260, 25)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "Status: OFF"
+StatusLabel.TextColor3 = Color3.fromRGB(220, 50, 50)
+StatusLabel.TextSize = 15
+StatusLabel.Font = Enum.Font.SourceSansSemibold
+StatusLabel.Parent = Frame
+
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Name = "ToggleBtn"
+ToggleBtn.Position = UDim2.fromOffset(20, 85)
+ToggleBtn.Size = UDim2.fromOffset(260, 45)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 100)
+ToggleBtn.Text = "START INSTANT REPAIR & QTE"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextSize = 14
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.Parent = Frame
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 8)
+BtnCorner.Parent = ToggleBtn
+
+---------------------------------------------------------
+-- 3. LOGIKA UI (BUKA/TUTUP & ON/OFF)
+---------------------------------------------------------
+VPButton.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
+end)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    isRunning = not isRunning
+    if isRunning then
+        ToggleBtn.Text = "STOP HACK"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+        StatusLabel.Text = "Status: ACTIVE (Instant & Auto Hit)"
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
+    else
+        ToggleBtn.Text = "START INSTANT REPAIR & QTE"
+        ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 100)
+        StatusLabel.Text = "Status: OFF"
+        StatusLabel.TextColor3 = Color3.fromRGB(220, 50, 50)
+    end
+end)
+
+---------------------------------------------------------
+-- 4. LOGIKA INSTANT REPAIR (Tahan = Langsung Jadi)
+---------------------------------------------------------
+local function hookPrompt(prompt)
+    prompt.PromptButtonHoldBegan:Connect(function(playerWhoTriggered)
+        if not isRunning then return end
+        if playerWhoTriggered == player then
+            task.spawn(function()
+                while isRunning and prompt.Parent do
+                    pcall(function()
+                        fireproximityprompt(prompt, 0)
+                        fireproximityprompt(prompt, 1)
+                    end)
+                    task.wait() 
+                end
+            end)
+        end
+    end)
+end
+
+for _, obj in pairs(workspace:GetDescendants()) do
+    if obj:IsA("ProximityPrompt") then
+        hookPrompt(obj)
+    end
+end
+
+workspace.DescendantAdded:Connect(function(obj)
+    if obj:IsA("ProximityPrompt") then
+        hookPrompt(obj)
+    end
+end)
+
+---------------------------------------------------------
+-- 5. LOGIKA AUTO SKILL CHECK / QTE
+---------------------------------------------------------
+local function hitSkillCheck()
+    pcall(function()
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+        task.wait(0.01)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+        
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+        task.wait(0.01)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+    end)
+end
+
+playerGui.DescendantAdded:Connect(function(descendant)
+    if not isRunning then return end
+    
+    local nameLower = string.lower(descendant.Name)
+    if string.find(nameLower, "skillcheck") or string.find(nameLower, "qte") or string.find(nameLower, "needle") then
+        task.wait(0.01) 
+        hitSkillCheck()
+    end
+end)
